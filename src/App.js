@@ -89,7 +89,7 @@ const QUESTIONS_DB = [
   }
 ];
 
-export default function App() {
+function App() {
   const [isMounted, setIsMounted] = useState(false);
   
   // ⚙️ 狀態管理
