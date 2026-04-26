@@ -3,47 +3,85 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DSE History App</title>
+    <title>DSE History 歷史科模擬答題系統</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <style>
+      body { background-color: #f3f4f6; }
+      #root { min-height: 100vh; }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; color: #666;">
+        網頁載入中，請稍候...
+      </div>
+    </div>
     
     <script type="text/babel">
-      // 從全域物件中提取工具
+      // 1. 提取 React 工具
       const { useState, useEffect, useRef, useCallback } = React;
 
-      async function loadAndRender() {
-        try {
-          const response = await fetch('/src/App.js');
-          const scriptText = await response.text();
-          
-          // 清除可能干擾瀏覽器的關鍵字
-          const cleanCode = scriptText
-            .replace(/import.*?;/g, '')
-            .replace(/export default/g, '');
+      // 2. 定義圖標組件 (防止 App.js 報錯)
+      const FileText = () => <span>📝</span>;
+      const Clock = () => <span>⏱️</span>;
+      const Target = () => <span>🎯</span>;
+      const CheckCircle = () => <span>✅</span>;
+      const AlertTriangle = () => <span>⚠️</span>;
+      const Copy = () => <span>📋</span>;
+      const ChevronDown = () => <span>▼</span>;
 
-          // 使用 Babel 轉換 JSX
+      // 將圖標掛載到全域，讓 App.js 抓得到
+      window.FileText = FileText;
+      window.Clock = Clock;
+      window.Target = Target;
+      window.CheckCircle = CheckCircle;
+      window.AlertTriangle = AlertTriangle;
+      window.Copy = Copy;
+      window.ChevronDown = ChevronDown;
+
+      async function bootApp() {
+        try {
+          // 3. 獲取 App.js 原始碼
+          const response = await fetch('/src/App.js');
+          if (!response.ok) throw new Error('找不到 /src/App.js，請檢查檔名與路徑');
+          
+          let scriptText = await response.text();
+          
+          // 4. 強力清理代碼：移除所有會導致瀏覽器崩潰的模組語法
+          const cleanCode = scriptText
+            .replace(/import\s+.*?\s+from\s+['"].*?['"];?/g, '') // 移除所有 import
+            .replace(/export\s+default\s+App;?/g, '')           // 移除底部 export
+            .replace(/export\s+default\s+/g, '');                // 移除 function 前的 export
+
+          // 5. 使用 Babel 轉換並執行
           const transformed = Babel.transform(cleanCode, { 
             presets: ['react'] 
           }).code;
           
-          // 執行代碼
-          eval(transformed);
+          eval(transformed); // 執行後，全域就會出現 function App
 
-          // 2. 修正：使用全域的 ReactDOM 進行渲染
-          const root = window.ReactDOM.createRoot(document.getElementById('root'));
+          // 6. 渲染到網頁
+          const root = ReactDOM.createRoot(document.getElementById('root'));
           root.render(<App />);
+          
         } catch (err) {
-          console.error("載入失敗:", err);
+          console.error("啟動失敗:", err);
+          document.getElementById('root').innerHTML = `
+            <div style="padding: 20px; color: red;">
+              <h3>網頁啟動失敗</h3>
+              <p>${err.message}</p>
+              <small>請按 F12 打開 Console 查看詳細錯誤</small>
+            </div>
+          `;
         }
       }
 
-      loadAndRender();
+      bootApp();
     </script>
   </body>
 </html>
