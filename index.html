@@ -26,7 +26,7 @@
       // 從全域物件提取 React Hook
       const { useState, useEffect, useRef, useCallback } = React;
 
-      // 預定義圖標組件，防止 App.js 因找不到組件而崩潰
+      // 確保圖標組件存在於全域，防止 App.js 因找不到組件而崩潰
       const iconStyle = { marginRight: '4px' };
       window.FileText = () => <span style={iconStyle}>📝</span>;
       window.Clock = () => <span style={iconStyle}>⏱️</span>;
@@ -40,31 +40,34 @@
         try {
           // A. 抓取你的 App.js
           const response = await fetch('/src/App.js');
-          if (!response.ok) throw new Error('無法讀取 /src/App.js，請檢查檔案路徑');
+          if (!response.ok) throw new Error('無法讀取 /src/App.js，請檢查檔案路徑是否正確');
           
           let scriptText = await response.text();
           
-          // B. 清理代碼：移除所有 import 和 export 關鍵字
+          // B. 清理代碼：移除所有 import 和 export 關鍵字 (避免瀏覽器報錯)
           const cleanCode = scriptText
             .replace(/import\s+.*?\s+from\s+['"].*?['"];?/g, '')
             .replace(/export\s+default\s+App;?/g, '')
             .replace(/export\s+default\s+/g, '');
 
-          // C. 使用 Babel 轉換 JSX
+          // C. 使用 Babel 轉換 JSX 代碼
           const transformed = Babel.transform(cleanCode, { 
             presets: ['react'] 
           }).code;
 
-          // D. 關鍵：執行代碼並將 App 函數強制暴露到全域 window
+          // D. 將 App 函數定義為全域變數，確保 ReactDOM 能抓到它
           const finalCode = transformed + "\nwindow.App = App;";
+          
+          // 執行代碼
           eval(finalCode); 
 
-          // E. 渲染 App
+          // E. 渲染 App 組件到 root 節點
           if (typeof window.App !== 'undefined') {
             const root = ReactDOM.createRoot(document.getElementById('root'));
+            // 使用 window.App 確保引用的是全域定義的組件
             root.render(<window.App />);
           } else {
-            throw new Error('代碼已執行但找不到 App 函數');
+            throw new Error('代碼執行成功，但未能在全域環境找到 App 函數');
           }
           
         } catch (err) {
@@ -73,10 +76,16 @@
             <div style="padding: 40px; font-family: sans-serif; color: #e11d48; text-align: center;">
               <h1 style="font-size: 24px;">⚠️ 網頁啟動失敗</h1>
               <p style="margin-top: 10px;">錯誤訊息：${err.message}</p>
-              <p style="font-size: 14px; color: #666;">提示：請按 F12 打開 Console 查看詳細日誌</p>
+              <p style="font-size: 14px; color: #666; margin-top: 20px;">
+                提示：請確認 /src/App.js 是否存在，且內部沒有語法錯誤。
+              </p>
             </div>
           `;
         }
       }
 
-      // 開始
+      // 執行啟動程序
+      bootApp();
+    </script>
+  </body>
+</html>
