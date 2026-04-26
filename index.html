@@ -11,14 +11,26 @@
     <div id="root"></div>
     <script type="text/babel" src="/src/App.js"></script>
     
-    <script type="text/babel">
-      // 確保 React 全域可用
-      import React from 'https://esm.sh/react@18.2.0'
-      import ReactDOM from 'https://esm.sh/react-dom@18.2.0/client'
-      import App from './src/App.js'
+<script type="text/babel">
+  // 1. 先載入你的主程式
+  // 2. 確保在 App 載入後執行渲染
+  async function init() {
+    try {
+      // 獲取 App.js 內容並執行
+      const response = await fetch('/src/App.js');
+      const code = await response.text();
+      
+      // 使用 Babel 轉換代碼並執行
+      const transformedCode = Babel.transform(code, { presets: ['react'] }).code;
+      eval(transformedCode);
 
-      const root = ReactDOM.createRoot(document.getElementById('root'))
-      root.render(<App />)
-    </script>
-  </body>
-</html>
+      // 現在 App 函數應該已經在全域中了
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+    } catch (err) {
+      console.error("啟動失敗:", err);
+    }
+  }
+
+  init();
+</script>
