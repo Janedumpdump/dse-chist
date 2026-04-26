@@ -1,5 +1,11 @@
 const { useState, useEffect, useRef, useCallback } = React;
-
+const FileText = () => "📝";
+const Clock = () => "⏱️";
+const Target = () => "🎯";
+const CheckCircle = () => "✅";
+const AlertTriangle = () => "⚠️";
+const Copy = () => "📋";
+const ChevronDown = () => "▼";
 // ==========================================
 // 🚩 1. 動態題庫與專屬 AI 提示配置
 // ==========================================
