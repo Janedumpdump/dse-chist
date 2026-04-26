@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'https://esm.sh/react@18.2.0';
-import { FileText, Clock, Target, CheckCircle, AlertTriangle, Copy, ChevronDown } from 'https://esm.sh/lucide-react@0.284.0';
+const { useState, useEffect, useRef, useCallback } = React;
 
 // ==========================================
 // 🚩 1. 動態題庫與專屬 AI 提示配置
