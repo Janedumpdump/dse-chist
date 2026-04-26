@@ -6,31 +6,36 @@
     <title>DSE History App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="text/babel" src="/src/App.js"></script>
     
-<script type="text/babel">
-  // 1. 先載入你的主程式
-  // 2. 確保在 App 載入後執行渲染
-  async function init() {
-    try {
-      // 獲取 App.js 內容並執行
-      const response = await fetch('/src/App.js');
-      const code = await response.text();
-      
-      // 使用 Babel 轉換代碼並執行
-      const transformedCode = Babel.transform(code, { presets: ['react'] }).code;
-      eval(transformedCode);
+    <script type="text/babel">
+      // 將 React Hook 從全域取出
+      const { useState, useEffect, useRef, useCallback } = React;
 
-      // 現在 App 函數應該已經在全域中了
-      const root = ReactDOM.createRoot(document.getElementById('root'));
-      root.render(<App />);
-    } catch (err) {
-      console.error("啟動失敗:", err);
-    }
-  }
+      // 定義一個非同步載入器
+      async function loadApp() {
+        const response = await fetch('/src/App.js');
+        const scriptText = await response.text();
+        
+        // 移除 App.js 裡可能存在的 import/export 關鍵字，避免報錯
+        const cleanCode = scriptText
+          .replace(/import.*?;/g, '')
+          .replace(/export default/g, '');
 
-  init();
-</script>
+        // 轉換並執行
+        const transformed = Babel.transform(cleanCode, { presets: ['react'] }).code;
+        eval(transformed);
+
+        // 渲染
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+      }
+
+      loadApp().catch(err => console.error("渲染失敗:", err));
+    </script>
+  </body>
+</html>
