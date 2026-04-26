@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import {
+import React, { useState, useEffect, useRef, useCallback } from 'https://esm.sh/react@18.2.0';
+import { FileText, Clock, Target, CheckCircle, AlertTriangle, Copy, ChevronDown } from 'https://esm.sh/lucide-react@0.284.0';
   FileText, Clock, Target, CheckCircle, AlertTriangle, Copy, ChevronDown
 } from 'lucide-react';
 
@@ -481,3 +481,4 @@ export default function App() {
     </div>
   );
 }
+export default App;
