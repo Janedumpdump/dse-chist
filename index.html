@@ -6,36 +6,44 @@
     <title>DSE History App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   </head>
   <body>
     <div id="root"></div>
     
     <script type="text/babel">
-      // 將 React Hook 從全域取出
+      // 從全域物件中提取工具
       const { useState, useEffect, useRef, useCallback } = React;
 
-      // 定義一個非同步載入器
-      async function loadApp() {
-        const response = await fetch('/src/App.js');
-        const scriptText = await response.text();
-        
-        // 移除 App.js 裡可能存在的 import/export 關鍵字，避免報錯
-        const cleanCode = scriptText
-          .replace(/import.*?;/g, '')
-          .replace(/export default/g, '');
+      async function loadAndRender() {
+        try {
+          const response = await fetch('/src/App.js');
+          const scriptText = await response.text();
+          
+          // 清除可能干擾瀏覽器的關鍵字
+          const cleanCode = scriptText
+            .replace(/import.*?;/g, '')
+            .replace(/export default/g, '');
 
-        // 轉換並執行
-        const transformed = Babel.transform(cleanCode, { presets: ['react'] }).code;
-        eval(transformed);
+          // 使用 Babel 轉換 JSX
+          const transformed = Babel.transform(cleanCode, { 
+            presets: ['react'] 
+          }).code;
+          
+          // 執行代碼
+          eval(transformed);
 
-        // 渲染
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+          // 2. 修正：使用全域的 ReactDOM 進行渲染
+          const root = window.ReactDOM.createRoot(document.getElementById('root'));
+          root.render(<App />);
+        } catch (err) {
+          console.error("載入失敗:", err);
+        }
       }
 
-      loadApp().catch(err => console.error("渲染失敗:", err));
+      loadAndRender();
     </script>
   </body>
 </html>
