@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'https://esm.sh/react@18.2.0'
 import {
   FileText, Clock, Target, CheckCircle, AlertTriangle, Copy, ChevronDown
 } from 'lucide-react';
