@@ -4,9 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DSE History App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   </head>
   <body>
     <div id="root"></div>
-   <script type="module" src="/src/App.js"></script>
+    <script type="text/babel" src="/src/App.js"></script>
+    
+    <script type="text/babel">
+      // 確保 React 全域可用
+      import React from 'https://esm.sh/react@18.2.0'
+      import ReactDOM from 'https://esm.sh/react-dom@18.2.0/client'
+      import App from './src/App.js'
+
+      const root = ReactDOM.createRoot(document.getElementById('root'))
+      root.render(<App />)
+    </script>
   </body>
 </html>
